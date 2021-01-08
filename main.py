@@ -5,8 +5,10 @@ Contact : brich.oussama@gmail.com
 Date    : 01/01/2021
 Desc: apply a One-Time Pad cipher to a given message
 """
+import argparse
 import os
 import random
+import shutil
 
 
 def write_file(path, text):
@@ -31,6 +33,20 @@ def get_random_number(size):
     return random.randint(min_int, max_int)
 
 
+def get_pad(pads_path, file_type):
+    """
+    Get pad file
+    :param pads_path: pad path
+    :param file_type: 'c' or 's' rr 'p'
+    :return: boolean
+    """
+    for i in range(100):
+        pad_path = pads_path + "/" + str(i).zfill(2) + file_type
+        if os.path.exists(pad_path):
+            return pad_path
+    return False
+
+
 def generate_pads(path):
     """
     Generate pads to be used to encrypt text
@@ -41,8 +57,6 @@ def generate_pads(path):
     old_dirs = os.listdir(path)
 
     i = 0
-    new_dir_name = ""
-
     while True:
         new_dir_name = str(i).zfill(4)
         # Create new dir if already exist
@@ -71,6 +85,7 @@ def generate_pads(path):
 
     return new_dir_name
 
+
 def encrypt(string, pad_path):
     """
     Encrypt srting using pads
@@ -80,6 +95,7 @@ def encrypt(string, pad_path):
     """
     f = open(pad_path, "r")
     pads = f.read()
+    f.close()
     encrypted_str = ""
 
     for char in string:
@@ -105,6 +121,7 @@ def decrypt(string, pad_path):
     """
     f = open(pad_path, "r")
     pads = f.read()
+    f.close()
     decrypted_str = ""
 
     for char in string:
@@ -126,18 +143,37 @@ def main():
     main function
     :return: status
     """
+    pads_base_path = "./pads/"
+    generated_pads_path = generate_pads(pads_base_path)
+    pad = get_pad(generated_pads_path, "c")
 
-    pads_path = "./pads"
-    pad = "./pads/0000/00c"
-    # generate_pads(pads_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", '--file', help='file input')
+    parser.add_argument("-t", '--text', help='text to encode')
+    args = parser.parse_args()
 
-    test_str = "test"
+    if args.file:
+        image_input_path = args.file
+        f = open(image_input_path, "r")
+        test_str = f.read()
+        f.close()
+    elif args.text:
+        test_str = args.text
+    else:
+        test_str = "Hello!"
+
     print("Test word : " + test_str)
-    encrypted_str = encrypt("Test", pad)
-    print(encrypted_str)
+    print("+-------------------------+")
+
+    encrypted_str = encrypt(test_str, pad)
+    print("Encrypted word : " + encrypted_str)
 
     decrypted_str = decrypt(encrypted_str, pad)
-    print(decrypted_str)
+    print("Decrypted word : " + decrypted_str)
+    print("+-------------------------+")
+
+    # Destroy pads if necessary
+    # shutil.rmtree(generated_pads_path)
 
     return 0
 
