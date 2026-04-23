@@ -25,5 +25,5 @@ $ python3 main.py -t "Hello!"
 
 - -h : Show help.
 
-By Oussama BRICH (brich.oussama@gmail.com),
+By Oussama BRICH (oussama-brich.com),
 No constraints to use this code.# One-Time-Pad
